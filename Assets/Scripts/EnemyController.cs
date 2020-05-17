@@ -18,6 +18,7 @@ public class EnemyController : MonoBehaviour
             wpsList.Add(child.gameObject);
         }
         agent.SetDestination(wpsList[Random.Range(0, wpsList.Count - 1)].transform.position);
+        animator.SetBool("isWalking", true);
     }
 
     // Update is called once per frame
@@ -25,12 +26,15 @@ public class EnemyController : MonoBehaviour
     {
         if (agent.remainingDistance > agent.stoppingDistance)
         {
-            animator.SetBool("isWalking", true);
-        }
-        else
+            if (agent.speed < 2.5)
+            {
+                animator.SetBool("isWalking", true);
+            }
+        } else
         {
             animator.SetBool("isWalking", false);
-            agent.SetDestination(wpsList[Random.Range(0, wpsList.Count - 1)].transform.position);
+            animator.SetBool("isHunting", false);
+            setNewRandomPoint();
         }
     }
 
@@ -38,5 +42,21 @@ public class EnemyController : MonoBehaviour
     {
         agent.SetDestination(destination);
         animator.SetBool("isHunting", true);
+        agent.speed = 2.5f;
+    }
+
+    public void setNewRandomPoint()
+    {
+        agent.SetDestination(wpsList[Random.Range(0, wpsList.Count - 1)].transform.position);
+        animator.SetBool("isHunting", false);
+        agent.speed = 1.8f;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            setNewRandomPoint();
+        }
     }
 }
